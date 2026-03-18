@@ -84,6 +84,9 @@ class TestContextFlow(unittest.TestCase):
 
     def test_native_cache(self):
         from contextflow.cache import NativeCache
+        from contextflow.compression import DistillationCompressor
+        from contextflow.provider import MockProvider
+        
         cache = NativeCache()
         compressor = StandardCompressor()
         
@@ -93,6 +96,17 @@ class TestContextFlow(unittest.TestCase):
         cached2 = cache.get_or_set(item, compressor)
         
         self.assertIs(cached1, cached2) 
+        
+        # Verify semantic context invalidates hash keys
+        distill_50 = DistillationCompressor(MockProvider(), overflow_threshold=50)
+        distill_100 = DistillationCompressor(MockProvider(), overflow_threshold=100)
+        
+        h_std = cache._hash(item, compressor)
+        h_50 = cache._hash(item, distill_50)
+        h_100 = cache._hash(item, distill_100)
+        
+        self.assertNotEqual(h_std, h_50)
+        self.assertNotEqual(h_50, h_100) 
 
     def test_ranking_time_decay(self):
         from contextflow.ranking import ContextRanker, TimeDecayScorer

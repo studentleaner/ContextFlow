@@ -1,30 +1,59 @@
 ============================= test session starts =============================
-platform win32 -- Python 3.10.11, pytest-9.0.2, pluggy-1.6.0
+platform win32 -- Python 3.10.11, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\Pradeep\AppData\Local\Programs\Python\Python310\python.exe
+cachedir: .pytest_cache
 rootdir: C:\Users\Pradeep\OneDrive\Documents\Code\Github\ContextFlow
 configfile: pyproject.toml
 plugins: anyio-4.12.1
-collected 15 items
+collecting ... collected 8 items
 
-test_core.py .F......                                                    [ 53%]
-test_registry.py .......                                                 [100%]
+test_registry.py::test_generic_registry FAILED                           [ 12%]
+test_registry.py::test_registry_type_checking PASSED                     [ 25%]
+test_registry.py::test_mode_registry FAILED                              [ 37%]
+test_registry.py::test_compressor_registry FAILED                        [ 50%]
+test_registry.py::test_provider_registry PASSED                          [ 62%]
+test_registry.py::test_source_registry PASSED                            [ 75%]
+test_registry.py::test_scorer_registry PASSED                            [ 87%]
+test_registry.py::test_auto_discovery PASSED                             [100%]
 
 ================================== FAILURES ===================================
-________________ TestContextFlow.test_distillation_compressor _________________
+____________________________ test_generic_registry ____________________________
 
-self = <test_core.TestContextFlow testMethod=test_distillation_compressor>
+    def test_generic_registry():
+        registry = PluginRegistry("test", DummyBase)
+    
+        @registry.register("my_plugin")
+        class MyPlugin(DummyBase):
+            pass
+    
+        assert "my_plugin" in registry.list_plugins()
+>       assert registry.get_class("my_plugin") is MyPlugin
+E       AssertionError: assert <class 'test_registry.test_generic_registry.<locals>.MyPlugin'> is None
+E        +  where <class 'test_registry.test_generic_registry.<locals>.MyPlugin'> = get_class('my_plugin')
+E        +    where get_class = <contextflow.core.registry.PluginRegistry object at 0x0000017173705A50>.get_class
 
-    def test_distillation_compressor(self):
-        from contextflow.compression import DistillationCompressor
-        from contextflow.provider import MockProvider
-        compressor = DistillationCompressor(MockProvider(), overflow_threshold=10)
-        messages = [
-            ContextItem(role="user", content="This is a massive block of text that exceeds the limit.")
-        ]
-        compressed = compressor.compress(messages)
->       self.assertIn("[DISTILLED CONTEXT]", compressed[0].content)
-E       AssertionError: '[DISTILLED CONTEXT]' not found in 'This is a massive block of text that exceeds the limit.'
+test_registry.py:20: AssertionError
+_____________________________ test_mode_registry ______________________________
 
-test_core.py:64: AssertionError
+    def test_mode_registry():
+        plugins = mode_registry.list_plugins()
+        assert "minimal" in plugins
+        assert "full" in plugins
+>       assert issubclass(mode_registry.get_class("minimal"), MinimalMode)
+E       TypeError: issubclass() arg 2 must be a class, a tuple of classes, or a union
+
+test_registry.py:36: TypeError
+__________________________ test_compressor_registry ___________________________
+
+    def test_compressor_registry():
+        plugins = compressor_registry.list_plugins()
+        assert "standard" in plugins
+        assert "distillation" in plugins
+>       assert issubclass(compressor_registry.get_class("standard"), StandardCompressor)
+E       TypeError: issubclass() arg 2 must be a class, a tuple of classes, or a union
+
+test_registry.py:42: TypeError
 =========================== short test summary info ===========================
-FAILED test_core.py::TestContextFlow::test_distillation_compressor - Assertio...
-======================== 1 failed, 14 passed in 1.42s =========================
+FAILED test_registry.py::test_generic_registry - AssertionError: assert <clas...
+FAILED test_registry.py::test_mode_registry - TypeError: issubclass() arg 2 m...
+FAILED test_registry.py::test_compressor_registry - TypeError: issubclass() a...
+========================= 3 failed, 5 passed in 0.23s =========================

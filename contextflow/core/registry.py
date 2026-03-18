@@ -19,6 +19,26 @@ class PluginRegistry:
             return cls
         return decorator
 
+    def discover(self):
+        """Auto-discovers and registers external plugins securely via standard Python entry_points."""
+        import importlib.metadata
+        group_name = f"contextflow.plugins.{self.name}"
+        
+        try:
+            # Python 3.10+ robust grouping
+            eps = importlib.metadata.entry_points(group=group_name)
+        except TypeError:
+            eps = importlib.metadata.entry_points().get(group_name, [])
+            
+        for ep in eps:
+            if ep.name not in self._plugins:
+                try:
+                    plugin_class = ep.load()
+                    self.register(ep.name)(plugin_class)
+                except Exception:
+                    # Ignore crashing external modules strictly, isolating registry faults
+                    pass
+
     def get(self, name: str, **kwargs) -> Any:
         """Instantiates and returns a plugin by registered name."""
         if name not in self._plugins:

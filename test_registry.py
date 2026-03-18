@@ -53,3 +53,27 @@ def test_source_registry():
 def test_scorer_registry():
     plugins = scorer_registry.list_plugins()
     assert "time_decay" in plugins
+
+def test_auto_discovery(monkeypatch):
+    import importlib.metadata
+    from contextflow.core.interfaces import ContextMode
+    
+    class MockMode(ContextMode):
+        def select(self, messages): return messages
+        
+    class MockEntryPoint:
+        def __init__(self, name):
+            self.name = name
+        def load(self):
+            return MockMode
+            
+    def mock_entry_points(group=None):
+        if group == "contextflow.plugins.mode":
+            return [MockEntryPoint("mock_external")]
+        return []
+        
+    monkeypatch.setattr(importlib.metadata, "entry_points", mock_entry_points)
+    mode_registry.discover()
+    
+    assert "mock_external" in mode_registry.list_plugins()
+    assert mode_registry.get_class("mock_external") is MockMode

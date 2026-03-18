@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.7.0
+
+ContextFlow natively introduces the Engine Stabilization Layer, rectifying core caching invariants and standardizing external distribution hooks globally.
+
+**Added:**
+- `PluginRegistry.discover()` enabling automated parsing of `entry_points` registered inside third-party application modules conforming to the `contextflow.plugins.*` format securely.
+
+**Fixed:**
+- **Semantic Caching Stability:** `NativeCache` upgraded to dynamically encapsulate compressor properties during hash generation, structurally guaranteeing independent key indexing for deterministic text inputs traversing separate cognitive pipelines.
+
 ## v0.6.0
 
 ContextFlow natively introduces the Intelligence Layer to filter and compress context intelligently utilizing Semantic and Distillation logic.

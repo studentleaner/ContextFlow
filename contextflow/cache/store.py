@@ -10,15 +10,27 @@ class NativeCache:
     def __init__(self):
         self.store: Dict[str, ContextItem] = {}
 
-    def _hash(self, content: str) -> str:
-        return hashlib.md5(content.encode('utf-8')).hexdigest()
+    def _hash(self, item: ContextItem, compressor) -> str:
+        components = [item.content, compressor.__class__.__name__]
+        
+        # Ensure instances dynamically report their state
+        if hasattr(compressor, '__hash_context__'):
+            components.append(str(compressor.__hash_context__))
+        else:
+            if hasattr(compressor, 'threshold'):
+                components.append(f"threshold:{compressor.threshold}")
+            if hasattr(compressor, 'provider') and hasattr(compressor.provider, 'model'):
+                components.append(f"model:{compressor.provider.model}")
+                
+        base_str = "|".join(components)
+        return hashlib.md5(base_str.encode('utf-8')).hexdigest()
 
     def get_or_set(self, item: ContextItem, compressor) -> ContextItem:
         # Skipping hash overhead for tiny chat inputs (under 500 characters)
         if len(item.content) < 500:
             return compressor.compress([item])[0]
             
-        h = self._hash(item.content)
+        h = self._hash(item, compressor)
         if h in self.store:
             return self.store[h]
             
@@ -31,7 +43,7 @@ class NativeCache:
             res = await compressor.acompress([item])
             return res[0]
             
-        h = self._hash(item.content)
+        h = self._hash(item, compressor)
         if h in self.store:
             return self.store[h]
             
