@@ -1,20 +1,29 @@
-import os
+import asyncio
+from typing import List
+from .schema import ContextItem
 
-class MockProvider:
-    def chat(self, messages):
-        return "mock response"
+class Provider:
+    """Abstract base definition handling LLM executions asymptotically."""
+    async def arun(self, messages: List[ContextItem]) -> str:
+        raise NotImplementedError
 
-class OpenAIProvider:
-    def __init__(self, model="gpt-4o"):
-        import openai
+class MockProvider(Provider):
+    async def arun(self, messages: List[ContextItem]) -> str:
+        await asyncio.sleep(0.5) # Properly simulate network latency without blocking the loop
+        return "{ \"status\": \"success\", \"message\": \"mock response\" }"
+
+class OpenAIProvider(Provider):
+    """Async provider bridging exactly with the OpenAI AsyncClient"""
+    def __init__(self, api_key: str, model: str):
+        from openai import AsyncOpenAI
+        self.client = AsyncOpenAI(api_key=api_key)
         self.model = model
-        # Initialize client. Requires OPENAI_API_KEY to be set in local environment.
-        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        
-    def chat(self, messages):
-        # Format map mapping our pipeline dictionaries direct to the official OpenAI schema
-        response = self.client.chat.completions.create(
+
+    async def arun(self, messages: List[ContextItem]) -> str:
+        # Map our schema dicts natively to OpenAI's required format
+        api_messages = [m.to_llm_dict() for m in messages]
+        response = await self.client.chat.completions.create(
             model=self.model,
-            messages=messages
+            messages=api_messages
         )
         return response.choices[0].message.content

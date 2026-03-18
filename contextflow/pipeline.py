@@ -1,64 +1,77 @@
 import time
+import asyncio
+from typing import List, Optional, Callable
+from .schema import ContextItem
 
 class ContextPipeline:
-
-    def __init__(self, sources, mode, compressor, provider, budget=None, metrics=None):
+    def __init__(self, sources, mode, compressor, budget, provider, metrics=None,
+                 on_before_mode: Optional[Callable] = None,
+                 on_after_mode: Optional[Callable] = None,
+                 on_before_provider: Optional[Callable] = None):
+        """
+        Orchestration class handling the flow of ContextItems.
+        Added explicit event hooks to fulfill Phase 5 telemetry requirements.
+        """
         self.sources = sources
         self.mode = mode
         self.compressor = compressor
-        self.provider = provider
         self.budget = budget
+        self.provider = provider
         self.metrics = metrics
-
-    def run(self, goal):
         
-        messages = []
+        self.on_before_mode = on_before_mode
+        self.on_after_mode = on_after_mode
+        self.on_before_provider = on_before_provider
+
+    async def arun(self, goal: str) -> str:
+        """Asynchronous execution for multi-agent loops like LangGraph or CrewAI."""
+        messages: List[ContextItem] = []
         for s in self.sources:
             messages.extend(s.load())
 
-        # 1. Prefix Caching Sequencer (Maximize LLM API Cache Hits)
-        # We enforce a strict order: [System Context] -> [Loaded Files/Docs] -> [Volatile Chat Memory] -> [New Goal]
-        system_msgs = [m for m in messages if m.get("role") == "system"]
-        file_msgs = [m for m in messages if "File Content" in m.get("content", "")]
+        # 1. Prefix Caching Sequencer
+        system_msgs = [m for m in messages if m.role == "system"]
+        file_msgs = [m for m in messages if "File Content" in m.content]
         volatile_msgs = [m for m in messages if m not in system_msgs and m not in file_msgs]
         
         messages = system_msgs + file_msgs + volatile_msgs
 
-        messages.append({
-            "role": "user",
-            "content": goal,
-        })
+        # Append execution goal with maximum priority
+        messages.append(ContextItem(role="user", content=goal, priority=100))
 
-        # Track initial theoretical token count for metrics
-        tokens_before = sum(len(m.get("content", "")) // 4 for m in messages)
-
+        tokens_before = sum(len(m.content) // 4 for m in messages)
         start_time = time.time()
+
+        # Telemetry Hook 1
+        if self.on_before_mode:
+            self.on_before_mode(messages)
 
         # 2. Mode Filter
         messages = self.mode.select(messages)
 
-        # 2. Sequential String Compression
+        # Telemetry Hook 2
+        if self.on_after_mode:
+            self.on_after_mode(messages)
+
+        # 3. Deterministic Compression & Ranking Budget
         messages = self.compressor.compress(messages)
+        messages = self.budget.enforce(messages)
 
-        # 3. Token Truncation Budget
-        if self.budget is not None:
-            messages = self.budget.fit(messages)
+        # Telemetry Hook 3
+        if self.on_before_provider:
+            self.on_before_provider(messages)
 
+        tokens_after = sum(len(m.content) // 4 for m in messages)
         latency_ms = (time.time() - start_time) * 1000
 
-        # Attempt to track exact tokens saved
-        tokens_after = sum(len(m.get("content", "")) // 4 for m in messages)
-        if hasattr(self.budget, "count_tokens") and self.budget:
-            tokens_before = self.budget.count_tokens(" ".join(m.get("content","") for m in self.sources)) + self.budget.count_tokens(goal)
-            tokens_after = self.budget.count_tokens(" ".join(m.get("content","") for m in messages))
+        # Telemetry Record
+        if self.metrics:
+            self.metrics.record(tokens_before, tokens_after, latency_ms)
 
-        # 4. Telemetry Logging
-        if self.metrics is not None:
-            self.metrics.record("tokens_before", tokens_before)
-            self.metrics.record("tokens_after", tokens_after)
-            ratio = 0 if tokens_before == 0 else (tokens_after / tokens_before)
-            self.metrics.record("compression_ratio", ratio)
-            self.metrics.record("latency_ms", latency_ms)
-
-        # 5. Network Provider Call
-        return self.provider.chat(messages)
+        # 4. Async Provider Call
+        response = await self.provider.arun(messages)
+        return response
+        
+    def run(self, goal: str) -> str:
+        """Fallback synchronous method for legacy integrations."""
+        return asyncio.run(self.arun(goal))

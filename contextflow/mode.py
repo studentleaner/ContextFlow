@@ -1,10 +1,18 @@
+from typing import List
+from .interfaces import ContextMode
+from .schema import ContextItem
 
-class MinimalMode:
-    def select(self, messages):
-        return messages[-5:]
+class MinimalMode(ContextMode):
+    """
+    Strips out 'assistant' and 'tool' reasoning logs. 
+    Only keeps user instructions and system constraints.
+    """
+    def select(self, messages: List[ContextItem]) -> List[ContextItem]:
+        return [m for m in messages if m.role in ["user", "system"]]
 
-
-class FullMode:
-    def select(self, messages):
+class FullMode(ContextMode):
+    """
+    Leaves the context array entirely untouched, passing everything downstream.
+    """
+    def select(self, messages: List[ContextItem]) -> List[ContextItem]:
         return messages
- 

@@ -1,0 +1,21 @@
+...E.
+======================================================================
+ERROR: test_pipeline_execution (__main__.TestContextFlow)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Pradeep\OneDrive\Documents\Code\Github\ContextFlow\test_core.py", line 26, in test_pipeline_execution
+    response = self.pipeline.run(goal)
+  File "C:\Users\Pradeep\OneDrive\Documents\Code\Github\ContextFlow\contextflow\pipeline.py", line 77, in run
+    return asyncio.run(self.arun(goal))
+  File "C:\Users\Pradeep\AppData\Local\Programs\Python\Python310\lib\asyncio\runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "C:\Users\Pradeep\AppData\Local\Programs\Python\Python310\lib\asyncio\base_events.py", line 649, in run_until_complete
+    return future.result()
+  File "C:\Users\Pradeep\OneDrive\Documents\Code\Github\ContextFlow\contextflow\pipeline.py", line 69, in arun
+    self.metrics.record(tokens_before, tokens_after, latency_ms)
+TypeError: MetricsCollector.record() takes 3 positional arguments but 4 were given
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.158s
+
+FAILED (errors=1)
