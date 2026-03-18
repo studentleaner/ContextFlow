@@ -17,6 +17,7 @@ contextflow/cache/store.py
 contextflow/compression/__init__.py
 contextflow/core/__init__.py
 contextflow/core/interfaces.py
+contextflow/core/registry.py
 contextflow/core/schema.py
 contextflow/memory/__init__.py
 contextflow/metrics/__init__.py

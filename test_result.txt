@@ -1,0 +1,11 @@
+============================= test session starts =============================
+platform win32 -- Python 3.10.11, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\Pradeep\OneDrive\Documents\Code\Github\ContextFlow
+configfile: pyproject.toml
+plugins: anyio-4.12.1
+collected 15 items
+
+test_registry.py .......                                                 [ 46%]
+test_core.py ........                                                    [100%]
+
+============================= 15 passed in 1.53s ==============================

@@ -2,7 +2,11 @@ import os
 from typing import List
 from ..core.interfaces import ContextSource
 from ..core.schema import ContextItem
+from ..core.registry import SourceRegistry
 
+source_registry = SourceRegistry("source", ContextSource)
+
+@source_registry.register("file")
 class FileSource(ContextSource):
     """
     Native Source adapter that reads local markdown or log files directly into 

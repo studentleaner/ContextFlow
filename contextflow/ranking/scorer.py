@@ -1,10 +1,14 @@
 from typing import List
 from ..core.schema import ContextItem
+from ..core.registry import ScorerRegistry
 
 class Scorer:
     def score(self, item: ContextItem, index: int, total: int) -> int:
         raise NotImplementedError
 
+scorer_registry = ScorerRegistry("scorer", Scorer)
+
+@scorer_registry.register("time_decay")
 class TimeDecayScorer(Scorer):
     """
     Automatically penalizes the priority of older contextual history dynamically.

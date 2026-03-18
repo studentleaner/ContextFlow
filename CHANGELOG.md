@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.5.0
+
+ContextFlow natively introduces Plugin Registries enabling infinite extensibility without modifying core architecture.
+
+**Added:**
+- `PluginRegistry` foundational pattern inside `core/registry.py`.
+- `ModeRegistry`, `CompressorRegistry`, `ProviderRegistry`, `SourceRegistry`, and `ScorerRegistry` natively exporting decorators for dynamic logic insertion.
+- Exhaustive test suite (`test_registry.py`) covering type-safe constraints and instantiation mechanisms natively.
+
+**Refactored:**
+- All built-in classes (`MinimalMode`, `OpenAIProvider`, `NativeCache` etc) register implicitly on import seamlessly.
+
+
 ## v0.4.0
 
 ContextFlow natively transitions from a stateless pipeline array into a stateful Context Engine.

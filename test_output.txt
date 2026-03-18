@@ -35,4 +35,4 @@ E   ModuleNotFoundError: No module named 'tiktoken'
 ERROR test_registry.py
 ERROR test_core.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.11s ==============================
+============================== 2 errors in 0.23s ==============================

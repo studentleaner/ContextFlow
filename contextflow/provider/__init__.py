@@ -1,17 +1,18 @@
 import asyncio
 from typing import List
 from ..core.schema import ContextItem
+from ..core.registry import ProviderRegistry
+from ..core.interfaces import Provider
 
-class Provider:
-    """Abstract base definition handling LLM executions asymptotically."""
-    async def arun(self, messages: List[ContextItem]) -> str:
-        raise NotImplementedError
+provider_registry = ProviderRegistry("provider", Provider)
 
+@provider_registry.register("mock")
 class MockProvider(Provider):
     async def arun(self, messages: List[ContextItem]) -> str:
         await asyncio.sleep(0.5) # Properly simulate network latency without blocking the loop
         return "{ \"status\": \"success\", \"message\": \"mock response\" }"
 
+@provider_registry.register("openai")
 class OpenAIProvider(Provider):
     """Async provider bridging exactly with the OpenAI AsyncClient"""
     def __init__(self, api_key: str, model: str):

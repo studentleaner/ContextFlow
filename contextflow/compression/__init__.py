@@ -2,7 +2,11 @@ import re
 from typing import List
 from ..core.interfaces import Compressor
 from ..core.schema import ContextItem
+from ..core.registry import CompressorRegistry
 
+compressor_registry = CompressorRegistry("compressor", Compressor)
+
+@compressor_registry.register("standard")
 class StandardCompressor(Compressor):
     
     def __init__(self):
@@ -69,6 +73,7 @@ class StandardCompressor(Compressor):
             ))
         return out
 
+@compressor_registry.register("distillation")
 class DistillationCompressor(Compressor):
     """
     Uses a fast auxiliary LLM to aggressively summarize enormous string payloads. 
