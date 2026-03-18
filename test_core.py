@@ -53,6 +53,39 @@ class TestContextFlow(unittest.TestCase):
         finally:
             os.remove(filepath)
 
+    def test_cache_lifecycle(self):
+        from contextflow.cache import NativeCache
+        cache_disabled = NativeCache(disable_cache=True)
+        cache_enabled = NativeCache(disable_cache=False)
+        compressor = StandardCompressor()
+        
+        big_string = "a" * 1000
+        item = ContextItem(role="system", content=f"```python\n{big_string}\n```")
+        
+        c1 = cache_enabled.get_or_set(item, "minimal", compressor)
+        c2 = cache_enabled.get_or_set(item, "minimal", compressor)
+        self.assertIs(c1, c2)
+        
+        d1 = cache_disabled.get_or_set(item, "minimal", compressor)
+        d2 = cache_disabled.get_or_set(item, "minimal", compressor)
+        self.assertIsNot(d1, d2)
+
+    def test_pipeline_invariants(self):
+        class BadMode(MinimalMode):
+            def select(self, messages):
+                return "Not A List"
+                
+        pipeline = ContextPipeline(
+            sources=[],
+            mode=BadMode(),
+            compressor=StandardCompressor(),
+            budget=TokenBudget(max_tokens=50),
+            provider=MockProvider()
+        )
+        
+        with self.assertRaises(TypeError):
+            pipeline.run(goal="Trigger typing error")
+
     def test_distillation_compressor(self):
         import asyncio
         from contextflow.compression import DistillationCompressor
@@ -92,8 +125,8 @@ class TestContextFlow(unittest.TestCase):
         
         big_string = "a" * 1000
         item = ContextItem(role="system", content=f"```python\n{big_string}\n```")
-        cached1 = cache.get_or_set(item, compressor)
-        cached2 = cache.get_or_set(item, compressor)
+        cached1 = cache.get_or_set(item, "minimal", compressor)
+        cached2 = cache.get_or_set(item, "minimal", compressor)
         
         self.assertIs(cached1, cached2) 
         
@@ -101,9 +134,9 @@ class TestContextFlow(unittest.TestCase):
         distill_50 = DistillationCompressor(MockProvider(), overflow_threshold=50)
         distill_100 = DistillationCompressor(MockProvider(), overflow_threshold=100)
         
-        h_std = cache._hash(item, compressor)
-        h_50 = cache._hash(item, distill_50)
-        h_100 = cache._hash(item, distill_100)
+        h_std = cache._hash(item, "minimal", compressor)
+        h_50 = cache._hash(item, "distillation", distill_50)
+        h_100 = cache._hash(item, "distillation", distill_100)
         
         self.assertNotEqual(h_std, h_50)
         self.assertNotEqual(h_50, h_100) 

@@ -7,11 +7,13 @@ class NativeCache:
     Cryptographic caching for stateless pipeline compression phases.
     Prevents CPU-heavy regex routines from executing on static PDFs or System Prompts continuously.
     """
-    def __init__(self):
+    def __init__(self, disable_cache: bool = False):
         self.store: Dict[str, ContextItem] = {}
+        self.disable_cache = disable_cache
 
-    def _hash(self, item: ContextItem, compressor) -> str:
-        components = [item.content, compressor.__class__.__name__]
+    def _hash(self, item: ContextItem, mode_name: str, compressor) -> str:
+        CACHE_SCHEMA_VERSION = "0.6.1"
+        components = [item.content, mode_name, compressor.__class__.__name__, CACHE_SCHEMA_VERSION]
         
         # Ensure instances dynamically report their state
         if hasattr(compressor, '__hash_context__'):
@@ -25,12 +27,15 @@ class NativeCache:
         base_str = "|".join(components)
         return hashlib.md5(base_str.encode('utf-8')).hexdigest()
 
-    def get_or_set(self, item: ContextItem, compressor) -> ContextItem:
+    def get_or_set(self, item: ContextItem, mode_name: str, compressor) -> ContextItem:
+        if self.disable_cache:
+            return compressor.compress([item])[0]
+            
         # Skipping hash overhead for tiny chat inputs (under 500 characters)
         if len(item.content) < 500:
             return compressor.compress([item])[0]
             
-        h = self._hash(item, compressor)
+        h = self._hash(item, mode_name, compressor)
         if h in self.store:
             return self.store[h]
             
@@ -38,12 +43,16 @@ class NativeCache:
         self.store[h] = compressed_item
         return compressed_item
 
-    async def aget_or_set(self, item: ContextItem, compressor) -> ContextItem:
+    async def aget_or_set(self, item: ContextItem, mode_name: str, compressor) -> ContextItem:
+        if self.disable_cache:
+            res = await compressor.acompress([item])
+            return res[0]
+            
         if len(item.content) < 500:
             res = await compressor.acompress([item])
             return res[0]
             
-        h = self._hash(item, compressor)
+        h = self._hash(item, mode_name, compressor)
         if h in self.store:
             return self.store[h]
             

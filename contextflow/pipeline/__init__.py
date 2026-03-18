@@ -28,6 +28,17 @@ class ContextPipeline:
         self.on_before_mode = on_before_mode
         self.on_after_mode = on_after_mode
         self.on_before_provider = on_before_provider
+        
+        self.validate_order()
+        
+    def validate_order(self):
+        """Strictly enforces the presence and execution ordering map of context nodes."""
+        if self.sources is None or self.mode is None or self.compressor is None or self.budget is None or self.provider is None:
+            raise ValueError("Pipeline invariant broken: Missing core context transformation layers.")
+
+    def _validate_types(self, stage: str, elements):
+        if not isinstance(elements, list) or (elements and not isinstance(elements[0], ContextItem)):
+            raise TypeError(f"Pipeline invariant broken: {stage} must strictly yield List[ContextItem]")
 
     async def arun(self, goal: str, state_history: List[ContextItem] = None) -> str:
         """Asynchronous execution for multi-agent loops like LangGraph or CrewAI."""
@@ -53,6 +64,7 @@ class ContextPipeline:
             self.on_before_mode(messages)
 
         messages = self.mode.select(messages)
+        self._validate_types("Mode", messages)
 
         if self.on_after_mode:
             self.on_after_mode(messages)
@@ -60,13 +72,20 @@ class ContextPipeline:
         if self.debug:
             print(f"[mode] {self.mode.__class__.__name__} safely mapped {len(messages)} surviving payload items")
 
+        if self.ranker:
+            messages = self.ranker.apply(messages)
+            self._validate_types("Ranker", messages)
+            if self.debug:
+                print(f"[rank] Context dynamically scored natively using {self.ranker.scorer.__class__.__name__}")
+
+        mode_name = self.mode.__class__.__name__
         if self.cache:
             compressed_msgs = []
             for m in messages:
                 if hasattr(self.cache, 'aget_or_set'):
-                    compressed_msgs.append(await self.cache.aget_or_set(m, self.compressor))
+                    compressed_msgs.append(await self.cache.aget_or_set(m, mode_name, self.compressor))
                 else:
-                    compressed_msgs.append(self.cache.get_or_set(m, self.compressor))
+                    compressed_msgs.append(self.cache.get_or_set(m, mode_name, self.compressor))
             messages = compressed_msgs
             if self.debug:
                 print(f"[cache] Hashed states cleanly avoiding {len(messages)} regex cycles natively")
@@ -75,12 +94,10 @@ class ContextPipeline:
             if self.debug:
                 print(f"[compress] Scraped array deterministically neutralizing duplication bloat")
 
-        if self.ranker:
-            messages = self.ranker.apply(messages)
-            if self.debug:
-                print(f"[rank] Context dynamically scored natively using {self.ranker.scorer.__class__.__name__}")
+        self._validate_types("Compressor", messages)
 
         messages = self.budget.enforce(messages)
+        self._validate_types("Budget", messages)
         
         # Tiktoken explicit calculation after budget slices
         final_tokens = sum(m.tokens for m in messages if m.tokens is not None)

@@ -4,56 +4,267 @@ cachedir: .pytest_cache
 rootdir: C:\Users\Pradeep\OneDrive\Documents\Code\Github\ContextFlow
 configfile: pyproject.toml
 plugins: anyio-4.12.1
-collecting ... collected 8 items
+collecting ... collected 18 items
 
-test_registry.py::test_generic_registry FAILED                           [ 12%]
-test_registry.py::test_registry_type_checking PASSED                     [ 25%]
-test_registry.py::test_mode_registry FAILED                              [ 37%]
-test_registry.py::test_compressor_registry FAILED                        [ 50%]
-test_registry.py::test_provider_registry PASSED                          [ 62%]
-test_registry.py::test_source_registry PASSED                            [ 75%]
-test_registry.py::test_scorer_registry PASSED                            [ 87%]
-test_registry.py::test_auto_discovery PASSED                             [100%]
+test_core.py::TestContextFlow::test_context_session FAILED               [  5%]
+test_core.py::TestContextFlow::test_distillation_compressor FAILED       [ 11%]
+test_core.py::TestContextFlow::test_file_source_loading FAILED           [ 16%]
+test_core.py::TestContextFlow::test_graph_context_bank FAILED            [ 22%]
+test_core.py::TestContextFlow::test_native_cache FAILED                  [ 27%]
+test_core.py::TestContextFlow::test_pipeline_execution FAILED            [ 33%]
+test_core.py::TestContextFlow::test_ranking_time_decay FAILED            [ 38%]
+test_core.py::TestContextFlow::test_semantic_compression FAILED          [ 44%]
+test_registry.py::test_generic_registry PASSED                           [ 50%]
+test_registry.py::test_registry_type_checking PASSED                     [ 55%]
+test_registry.py::test_mode_registry PASSED                              [ 61%]
+test_registry.py::test_compressor_registry PASSED                        [ 66%]
+test_registry.py::test_provider_registry PASSED                          [ 72%]
+test_registry.py::test_source_registry PASSED                            [ 77%]
+test_registry.py::test_scorer_registry PASSED                            [ 83%]
+test_registry.py::test_auto_discovery PASSED                             [ 88%]
+test_v06_nodes.py::test_semantic_mode PASSED                             [ 94%]
+test_v06_nodes.py::test_distillation_compressor PASSED                   [100%]
 
 ================================== FAILURES ===================================
-____________________________ test_generic_registry ____________________________
+____________________ TestContextFlow.test_context_session _____________________
 
-    def test_generic_registry():
-        registry = PluginRegistry("test", DummyBase)
-    
-        @registry.register("my_plugin")
-        class MyPlugin(DummyBase):
-            pass
-    
-        assert "my_plugin" in registry.list_plugins()
->       assert registry.get_class("my_plugin") is MyPlugin
-E       AssertionError: assert <class 'test_registry.test_generic_registry.<locals>.MyPlugin'> is None
-E        +  where <class 'test_registry.test_generic_registry.<locals>.MyPlugin'> = get_class('my_plugin')
-E        +    where get_class = <contextflow.core.registry.PluginRegistry object at 0x0000017173705A50>.get_class
+self = <test_core.TestContextFlow testMethod=test_context_session>
 
-test_registry.py:20: AssertionError
-_____________________________ test_mode_registry ______________________________
+    def setUp(self):
+>       self.pipeline = ContextPipeline(
+            sources=[],
+            mode=MinimalMode(),
+            compressor=StandardCompressor(),
+            budget=TokenBudget(max_tokens=50),
+            provider=MockProvider(),
+            metrics=MetricsCollector()
+        )
 
-    def test_mode_registry():
-        plugins = mode_registry.list_plugins()
-        assert "minimal" in plugins
-        assert "full" in plugins
->       assert issubclass(mode_registry.get_class("minimal"), MinimalMode)
-E       TypeError: issubclass() arg 2 must be a class, a tuple of classes, or a union
+test_core.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+contextflow\pipeline\__init__.py:32: in __init__
+    self.validate_order()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-test_registry.py:36: TypeError
-__________________________ test_compressor_registry ___________________________
+self = <contextflow.pipeline.ContextPipeline object at 0x00000195B9E146A0>
 
-    def test_compressor_registry():
-        plugins = compressor_registry.list_plugins()
-        assert "standard" in plugins
-        assert "distillation" in plugins
->       assert issubclass(compressor_registry.get_class("standard"), StandardCompressor)
-E       TypeError: issubclass() arg 2 must be a class, a tuple of classes, or a union
+    def validate_order(self):
+        """Strictly enforces the presence and execution ordering map of context nodes."""
+        if not all([self.sources, self.mode, self.compressor, self.budget, self.provider]):
+>           raise ValueError("Pipeline invariant broken: Missing core context transformation layers.")
+E           ValueError: Pipeline invariant broken: Missing core context transformation layers.
 
-test_registry.py:42: TypeError
+contextflow\pipeline\__init__.py:37: ValueError
+________________ TestContextFlow.test_distillation_compressor _________________
+
+self = <test_core.TestContextFlow testMethod=test_distillation_compressor>
+
+    def setUp(self):
+>       self.pipeline = ContextPipeline(
+            sources=[],
+            mode=MinimalMode(),
+            compressor=StandardCompressor(),
+            budget=TokenBudget(max_tokens=50),
+            provider=MockProvider(),
+            metrics=MetricsCollector()
+        )
+
+test_core.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+contextflow\pipeline\__init__.py:32: in __init__
+    self.validate_order()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <contextflow.pipeline.ContextPipeline object at 0x00000195BDAC34C0>
+
+    def validate_order(self):
+        """Strictly enforces the presence and execution ordering map of context nodes."""
+        if not all([self.sources, self.mode, self.compressor, self.budget, self.provider]):
+>           raise ValueError("Pipeline invariant broken: Missing core context transformation layers.")
+E           ValueError: Pipeline invariant broken: Missing core context transformation layers.
+
+contextflow\pipeline\__init__.py:37: ValueError
+__________________ TestContextFlow.test_file_source_loading ___________________
+
+self = <test_core.TestContextFlow testMethod=test_file_source_loading>
+
+    def setUp(self):
+>       self.pipeline = ContextPipeline(
+            sources=[],
+            mode=MinimalMode(),
+            compressor=StandardCompressor(),
+            budget=TokenBudget(max_tokens=50),
+            provider=MockProvider(),
+            metrics=MetricsCollector()
+        )
+
+test_core.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+contextflow\pipeline\__init__.py:32: in __init__
+    self.validate_order()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <contextflow.pipeline.ContextPipeline object at 0x00000195BDA52CE0>
+
+    def validate_order(self):
+        """Strictly enforces the presence and execution ordering map of context nodes."""
+        if not all([self.sources, self.mode, self.compressor, self.budget, self.provider]):
+>           raise ValueError("Pipeline invariant broken: Missing core context transformation layers.")
+E           ValueError: Pipeline invariant broken: Missing core context transformation layers.
+
+contextflow\pipeline\__init__.py:37: ValueError
+___________________ TestContextFlow.test_graph_context_bank ___________________
+
+self = <test_core.TestContextFlow testMethod=test_graph_context_bank>
+
+    def setUp(self):
+>       self.pipeline = ContextPipeline(
+            sources=[],
+            mode=MinimalMode(),
+            compressor=StandardCompressor(),
+            budget=TokenBudget(max_tokens=50),
+            provider=MockProvider(),
+            metrics=MetricsCollector()
+        )
+
+test_core.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+contextflow\pipeline\__init__.py:32: in __init__
+    self.validate_order()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <contextflow.pipeline.ContextPipeline object at 0x00000195BDA5DC60>
+
+    def validate_order(self):
+        """Strictly enforces the presence and execution ordering map of context nodes."""
+        if not all([self.sources, self.mode, self.compressor, self.budget, self.provider]):
+>           raise ValueError("Pipeline invariant broken: Missing core context transformation layers.")
+E           ValueError: Pipeline invariant broken: Missing core context transformation layers.
+
+contextflow\pipeline\__init__.py:37: ValueError
+______________________ TestContextFlow.test_native_cache ______________________
+
+self = <test_core.TestContextFlow testMethod=test_native_cache>
+
+    def setUp(self):
+>       self.pipeline = ContextPipeline(
+            sources=[],
+            mode=MinimalMode(),
+            compressor=StandardCompressor(),
+            budget=TokenBudget(max_tokens=50),
+            provider=MockProvider(),
+            metrics=MetricsCollector()
+        )
+
+test_core.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+contextflow\pipeline\__init__.py:32: in __init__
+    self.validate_order()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <contextflow.pipeline.ContextPipeline object at 0x00000195BDAC3D60>
+
+    def validate_order(self):
+        """Strictly enforces the presence and execution ordering map of context nodes."""
+        if not all([self.sources, self.mode, self.compressor, self.budget, self.provider]):
+>           raise ValueError("Pipeline invariant broken: Missing core context transformation layers.")
+E           ValueError: Pipeline invariant broken: Missing core context transformation layers.
+
+contextflow\pipeline\__init__.py:37: ValueError
+___________________ TestContextFlow.test_pipeline_execution ___________________
+
+self = <test_core.TestContextFlow testMethod=test_pipeline_execution>
+
+    def setUp(self):
+>       self.pipeline = ContextPipeline(
+            sources=[],
+            mode=MinimalMode(),
+            compressor=StandardCompressor(),
+            budget=TokenBudget(max_tokens=50),
+            provider=MockProvider(),
+            metrics=MetricsCollector()
+        )
+
+test_core.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+contextflow\pipeline\__init__.py:32: in __init__
+    self.validate_order()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <contextflow.pipeline.ContextPipeline object at 0x00000195BDA5A170>
+
+    def validate_order(self):
+        """Strictly enforces the presence and execution ordering map of context nodes."""
+        if not all([self.sources, self.mode, self.compressor, self.budget, self.provider]):
+>           raise ValueError("Pipeline invariant broken: Missing core context transformation layers.")
+E           ValueError: Pipeline invariant broken: Missing core context transformation layers.
+
+contextflow\pipeline\__init__.py:37: ValueError
+___________________ TestContextFlow.test_ranking_time_decay ___________________
+
+self = <test_core.TestContextFlow testMethod=test_ranking_time_decay>
+
+    def setUp(self):
+>       self.pipeline = ContextPipeline(
+            sources=[],
+            mode=MinimalMode(),
+            compressor=StandardCompressor(),
+            budget=TokenBudget(max_tokens=50),
+            provider=MockProvider(),
+            metrics=MetricsCollector()
+        )
+
+test_core.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+contextflow\pipeline\__init__.py:32: in __init__
+    self.validate_order()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <contextflow.pipeline.ContextPipeline object at 0x00000195BD1F0F10>
+
+    def validate_order(self):
+        """Strictly enforces the presence and execution ordering map of context nodes."""
+        if not all([self.sources, self.mode, self.compressor, self.budget, self.provider]):
+>           raise ValueError("Pipeline invariant broken: Missing core context transformation layers.")
+E           ValueError: Pipeline invariant broken: Missing core context transformation layers.
+
+contextflow\pipeline\__init__.py:37: ValueError
+__________________ TestContextFlow.test_semantic_compression __________________
+
+self = <test_core.TestContextFlow testMethod=test_semantic_compression>
+
+    def setUp(self):
+>       self.pipeline = ContextPipeline(
+            sources=[],
+            mode=MinimalMode(),
+            compressor=StandardCompressor(),
+            budget=TokenBudget(max_tokens=50),
+            provider=MockProvider(),
+            metrics=MetricsCollector()
+        )
+
+test_core.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+contextflow\pipeline\__init__.py:32: in __init__
+    self.validate_order()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <contextflow.pipeline.ContextPipeline object at 0x00000195BDA62E00>
+
+    def validate_order(self):
+        """Strictly enforces the presence and execution ordering map of context nodes."""
+        if not all([self.sources, self.mode, self.compressor, self.budget, self.provider]):
+>           raise ValueError("Pipeline invariant broken: Missing core context transformation layers.")
+E           ValueError: Pipeline invariant broken: Missing core context transformation layers.
+
+contextflow\pipeline\__init__.py:37: ValueError
 =========================== short test summary info ===========================
-FAILED test_registry.py::test_generic_registry - AssertionError: assert <clas...
-FAILED test_registry.py::test_mode_registry - TypeError: issubclass() arg 2 m...
-FAILED test_registry.py::test_compressor_registry - TypeError: issubclass() a...
-========================= 3 failed, 5 passed in 0.23s =========================
+FAILED test_core.py::TestContextFlow::test_context_session - ValueError: Pipe...
+FAILED test_core.py::TestContextFlow::test_distillation_compressor - ValueErr...
+FAILED test_core.py::TestContextFlow::test_file_source_loading - ValueError: ...
+FAILED test_core.py::TestContextFlow::test_graph_context_bank - ValueError: P...
+FAILED test_core.py::TestContextFlow::test_native_cache - ValueError: Pipelin...
+FAILED test_core.py::TestContextFlow::test_pipeline_execution - ValueError: P...
+FAILED test_core.py::TestContextFlow::test_ranking_time_decay - ValueError: P...
+FAILED test_core.py::TestContextFlow::test_semantic_compression - ValueError:...
+======================== 8 failed, 10 passed in 1.00s =========================
