@@ -1,10 +1,10 @@
 import unittest
-from budget import TokenBudget
-from pipeline import ContextPipeline
-from mode import MinimalMode
-from compression import StandardCompressor
-from provider import MockProvider
-from metrics import MetricsCollector
+from contextflow.budget import TokenBudget
+from contextflow.pipeline import ContextPipeline
+from contextflow.mode import MinimalMode
+from contextflow.compression import StandardCompressor
+from contextflow.provider import MockProvider
+from contextflow.metrics import MetricsCollector
 
 class TestContextFlow(unittest.TestCase):
 
@@ -64,7 +64,7 @@ class TestContextFlow(unittest.TestCase):
         self.assertNotIn("please kindly", content)
 
     def test_file_source_loading(self):
-        from sources import FileSource
+        from contextflow.sources import FileSource
         import tempfile
         import os
         
@@ -82,8 +82,8 @@ class TestContextFlow(unittest.TestCase):
             os.remove(filepath)
 
     def test_distillation_compressor(self):
-        from compression import DistillationCompressor
-        from provider import MockProvider
+        from contextflow.compression import DistillationCompressor
+        from contextflow.provider import MockProvider
         compressor = DistillationCompressor(MockProvider(), overflow_threshold=10)
         messages = [
             {"role": "user", "content": "This is a massive block of text that exceeds the limit."}
@@ -93,7 +93,7 @@ class TestContextFlow(unittest.TestCase):
         self.assertIn("mock response", compressed[0]["content"])
 
     def test_graph_context_bank(self):
-        from memory import GraphContextBank
+        from contextflow.memory import GraphContextBank
         graph = GraphContextBank()
         graph.add_node("Goal", "Analyze the user.")
         graph.add_node("User", "Pradeep")

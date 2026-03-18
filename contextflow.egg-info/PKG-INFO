@@ -1,3 +1,14 @@
+Metadata-Version: 2.1
+Name: contextflow
+Version: 0.1.0
+Summary: A lightweight, deterministic Python library for Context Engineering.
+Author: studentleaner
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+
 # ContextFlow 🌊  
 **Better Context > Bigger Models**
 
@@ -55,16 +66,10 @@ For a deep dive into how ContextFlow works and our plans for the future, explore
 
 ## 📦 Installation
 
-ContextFlow is officially available on PyPI!
-
-```bash
-pip install contextflow
-```
-
-*For local bleeding-edge installation:*
 ```bash
 git clone https://github.com/studentleaner/ContextFlow.git
 cd ContextFlow
+pip install -r requirements.txt
 pip install -e .
 ```
 

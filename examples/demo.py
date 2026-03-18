@@ -10,13 +10,10 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from pipeline import ContextPipeline
-from mode import MinimalMode
-from compression import StandardCompressor
-from provider import MockProvider
-from budget import TokenBudget
-from metrics import MetricsCollector
-from sources import FileSource
+from contextflow import (
+    ContextPipeline, MinimalMode, StandardCompressor, 
+    MockProvider, TokenBudget, MetricsCollector, FileSource
+)
 
 def main():
     console = Console()
