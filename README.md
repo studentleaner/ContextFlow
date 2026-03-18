@@ -40,6 +40,13 @@ For a deep dive into how ContextFlow works and how to extend its architecture, e
 5. [Interfaces (`docs/INTERFACES.md`)](docs/INTERFACES.md)
 6. [Metrics & Telemetry (`docs/METRICS.md`)](docs/METRICS.md)
 
+**API Data Contracts:**
+7. [Message Schema (`docs/MESSAGE_SCHEMA.md`)](docs/MESSAGE_SCHEMA.md) - Pydantic definitions and Priority indexing.
+8. [Tokenization Limits (`docs/TOKENIZATION.md`)](docs/TOKENIZATION.md) - Explicit Tiktoken constraints and algorithmic slicing.
+9. [Filtering Modes (`docs/MODES.md`)](docs/MODES.md)
+10. [Deterministic Compression (`docs/COMPRESSION.md`)](docs/COMPRESSION.md)
+11. [Async Providers (`docs/PROVIDER.md`)](docs/PROVIDER.md)
+
 ---
 
 ## ✨ Core Features
