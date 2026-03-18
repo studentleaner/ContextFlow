@@ -31,12 +31,12 @@ It deterministically removes noise, enforces token limits, and structures logs/m
 
 ## 📚 Documentation
 
-For a deep dive into how ContextFlow works and our plans for the future, explore the documentation:
+For a deep dive into how ContextFlow works and how to extend its architecture, explore the documentation:
 
-1. [Architectural Analysis (`docs/ANALYSIS.md`)](docs/ANALYSIS.md) - Why Context Engineering matters and our concept evaluation.
-2. [Project Architecture (`docs/ARCHITECTURE.md`)](docs/ARCHITECTURE.md) - The SOLID pipeline design.
-3. [Component Pipeline (`docs/PIPELINE.md`)](docs/PIPELINE.md) - How messages flow through the system.
-4. [Project Roadmap (`docs/ROADMAP.md`)](docs/ROADMAP.md) - Immediate and future development focus.
+1. [**Developer Usage & Extension Guide (`docs/USAGE.md`)**](docs/USAGE.md) - How to write code using ContextFlow, embed it in Agent loops, and write custom compression layers.
+2. [Architectural Analysis (`docs/ANALYSIS.md`)](docs/ANALYSIS.md) - Why Context Engineering matters and our concept evaluation.
+3. [Project Architecture (`docs/ARCHITECTURE.md`)](docs/ARCHITECTURE.md) - The SOLID pipeline design.
+4. [Component Pipeline (`docs/PIPELINE.md`)](docs/PIPELINE.md) - How messages flow through the system.
 5. [Interfaces (`docs/INTERFACES.md`)](docs/INTERFACES.md)
 6. [Metrics & Telemetry (`docs/METRICS.md`)](docs/METRICS.md)
 
@@ -53,15 +53,10 @@ For a deep dive into how ContextFlow works and our plans for the future, explore
 
 ---
 
-## 📦 Installation
+## 📦 Local Integration
 
-ContextFlow is officially available on PyPI!
+ContextFlow is designed to be dropped locally into existing applications:
 
-```bash
-pip install contextflow
-```
-
-*For local bleeding-edge installation:*
 ```bash
 git clone https://github.com/studentleaner/ContextFlow.git
 cd ContextFlow
