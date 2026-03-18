@@ -64,3 +64,31 @@ class StandardCompressor:
                 "content": text,
             })
         return out
+
+class DistillationCompressor:
+    """
+    Uses a fast auxiliary LLM (like GPT-4o-mini or a local Ollama model) to aggressively 
+    summarize enormous string payloads. 
+    WARNING: Use sparingly. Deterministic compression (StandardCompressor) is always 
+    preferred over LLM distillation due to latency and hallucination risks.
+    """
+    def __init__(self, distillation_provider, overflow_threshold=2000):
+        self.provider = distillation_provider
+        self.threshold = overflow_threshold
+
+    def compress(self, messages):
+        out = []
+        for m in messages:
+            content = m.get("content", "")
+            
+            # Only distill massive user blocks that threaten to blow up context limit
+            if m.get("role") == "user" and len(content) > self.threshold:
+                distilled = self.provider.chat([
+                    {"role": "system", "content": "Summarize the following text extremely densely. You MUST retain all exact nouns, IDs, JSON schemas, URL links, and code blocks perfectly."},
+                    {"role": "user", "content": content}
+                ])
+                out.append({"role": m.get("role", "user"), "content": f"[DISTILLED CONTEXT]:\n{distilled}"})
+            else:
+                out.append(m)
+                
+        return out

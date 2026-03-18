@@ -81,6 +81,37 @@ class TestContextFlow(unittest.TestCase):
         finally:
             os.remove(filepath)
 
+    def test_distillation_compressor(self):
+        from compression import DistillationCompressor
+        from provider import MockProvider
+        compressor = DistillationCompressor(MockProvider(), overflow_threshold=10)
+        messages = [
+            {"role": "user", "content": "This is a massive block of text that exceeds the limit."}
+        ]
+        compressed = compressor.compress(messages)
+        self.assertIn("[DISTILLED CONTEXT]", compressed[0]["content"])
+        self.assertIn("mock response", compressed[0]["content"])
+
+    def test_graph_context_bank(self):
+        from memory import GraphContextBank
+        graph = GraphContextBank()
+        graph.add_node("Goal", "Analyze the user.")
+        graph.add_node("User", "Pradeep")
+        graph.add_node("Age", "30")
+        graph.add_edge("Goal", "User")
+        graph.add_edge("User", "Age")
+        
+        # Depth 1 from Goal should find Goal and User, but not Age
+        source1 = graph.compile_source(["Goal"], max_depth=1)
+        contents = " ".join(m["content"] for m in source1)
+        self.assertIn("Pradeep", contents)
+        self.assertNotIn("30", contents)
+
+        # Depth 2 should find Age
+        source2 = graph.compile_source(["Goal"], max_depth=2)
+        contents2 = " ".join(m["content"] for m in source2)
+        self.assertIn("30", contents2)
+
 if __name__ == '__main__':
     unittest.main()
  

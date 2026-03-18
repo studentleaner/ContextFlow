@@ -26,8 +26,8 @@ The objective of Phase 2 is to ensure ContextFlow can sit reliably underneath po
 
 - [x] **KV Prefix Caching Optimizations:** Strictly sequencing the source array prior to compression to keep System Prompts at index 0 and volatile memory at the bottom, directly maximizing OpenAI/Anthropic sequence cache hits.
 - [x] **Multi-Agent Shared Context:** Provided a `SharedContextBank` dictionary where agents selectively borrow and yield context segments concurrently.
-- [ ] **Distillation Models:** For edge cases, support an optional small, ultra-fast local LLM.
-- [ ] **Context Graph Networks:** Using explicit knowledge-graphs for spatial layout.
+- [x] **Distillation Models:** Shipped `DistillationCompressor` for mapping massive loose documents through dense secondary models.
+- [x] **Context Graph Networks:** Implemented `GraphContextBank` unlocking depth-based spatial retrieval of linked agent context.
 
 ### 2. Metric Visibility (`metrics.py`)
 - *Are there admin pages?* No. ContextFlow is a headless library.
