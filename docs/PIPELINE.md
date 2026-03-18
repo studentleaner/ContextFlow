@@ -1,17 +1,15 @@
-# The Context Pipeline
+# Pipeline Contract
 
-The `pipeline.py` orchestrator is the execution heartbeat of ContextFlow.
+ContextPipeline is the main orchestrated loop of data. 
 
-## Run Loop Execution (`ContextPipeline.run()`)
+## Strict Execution Ordering Map
+The pipeline explicitly enforces a static node structure. This order locks to:
+1. `mode`: Stripping / Formatting (Semantic subsetting, formatting constraints)
+2. `rank`: Prioritizing and scoring
+3. `compress`: Deduplicating, summarization or distillation natively
+4. `cache`: Short-circuiting execution natively over duplicated chunks
+5. `budget`: Cropping to strict token limits before OOMs occur
+6. `provider`: Bounding asynchronous calls explicitly
 
-When a developer triggers pipeline execution for a specific objective, the following sequential operations occur:
-
-1. **Source Aggregation:** The pipeline iterates over all injected `ContextSource` instances and triggers `.load()`. This translates arbitrary logs and memory strings into uniform dictionary structures.
-2. **Goal Injection:** The developer's ultimate query (`goal`) is actively appended to the end of the array.
-3. **Filtering (`Mode.select()`):** The array is sliced down. For example, `MinimalMode` cuts the history to just the last 5 messages.
-4. **Deterministic Trimming (`Compressor.compress()`):** The text payload inside each remaining dictionary is scraped clean of visual whitespace, conversational LLM filler ("please", "here is your code"), and duplicate console logs.
-5. *(Future) Truncation (`TokenBudget.fit()`):* A tokenizer counts the total bits in the array. If it exceeds backend limits, it forces a targeted deletion of the oldest string contexts.
-6. **Execution (`Provider.chat()`):** The minimized JSON array payload is sent asynchronously to the LLM backend.
-
-## Why Sequential Iteration?
-We actively avoid asynchronous, parallelized summarization at the compression layer because waiting on secondary LLM API calls introduces massive latency and breaks deterministic safety constraints. Sequence guarantees speed. 
+Any custom plugins loaded downstream MUST comply with these 6 static steps to execute effectively natively.
+Pipelines rigorously lock these invariants dynamically during asynchronous execution to prevent out-of-order crashes or cache corruptions.

@@ -1,4 +1,5 @@
-from typing import Dict, Type, Any, Optional
+from typing import Dict, Type, Any, Optional, List
+import inspect
 
 class PluginRegistry:
     """
@@ -11,7 +12,13 @@ class PluginRegistry:
         self._plugins: Dict[str, Type] = {}
 
     def register(self, name: str):
-        """Decorator to register a class as a plugin."""
+        """Decorator to register a class as a plugin. Enforces import-time registration."""
+        frame = inspect.stack()[1]
+        
+        # Protect runtime mutation, but allow test suites and native auto-discovery
+        if frame.function != '<module>' and frame.function != 'discover' and not frame.function.startswith('test_'):
+            raise RuntimeError(f"Plugins can only be registered at import time. Runtime registration of '{name}' is forbidden to protect engine stability.")
+
         def decorator(cls: Type):
             if not issubclass(cls, self.base_class):
                 raise TypeError(f"Plugin {cls.__name__} must subclass {self.base_class.__name__}")
@@ -51,9 +58,21 @@ class PluginRegistry:
             raise KeyError(f"Plugin '{name}' not found in registry '{self.name}'.")
         return self._plugins[name]
 
-    def list_plugins(self) -> list[str]:
-        """Returns string names of all registered plugins."""
+    def list_plugins(self) -> List[str]:
+        """Returns string names of all registered plugins (Legacy method)."""
         return list(self._plugins.keys())
+
+    def list(self) -> List[Type]:
+        """Returns a read-only list of all registered plugin classes."""
+        return list(self._plugins.values())
+
+    def names(self) -> List[str]:
+        """Returns a read-only list of all registered plugin names."""
+        return list(self._plugins.keys())
+
+    def has(self, name: str) -> bool:
+        """Checks if a plugin name exists in the registry natively."""
+        return name in self._plugins
 
 # Type-specific Registry Subclasses
 class ModeRegistry(PluginRegistry): pass

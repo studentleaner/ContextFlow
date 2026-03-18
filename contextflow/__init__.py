@@ -1,3 +1,5 @@
+__version__ = "0.6.1"
+
 from .pipeline import ContextPipeline
 from .mode import MinimalMode, FullMode
 from .compression import StandardCompressor, DistillationCompressor
@@ -13,7 +15,7 @@ from .cache import NativeCache
 from .ranking import ContextRanker, TimeDecayScorer
 from .session import ContextSession
 
-__version__ = "0.5.0"
+
 
 __all__ = [
     "ContextPipeline",

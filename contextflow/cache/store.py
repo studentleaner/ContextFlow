@@ -1,6 +1,7 @@
 import hashlib
 from typing import List, Dict
 from ..core.schema import ContextItem
+from .. import __version__ as ENGINE_VERSION
 
 class NativeCache:
     """
@@ -13,7 +14,8 @@ class NativeCache:
 
     def _hash(self, item: ContextItem, mode_name: str, compressor) -> str:
         CACHE_SCHEMA_VERSION = "0.6.1"
-        components = [item.content, mode_name, compressor.__class__.__name__, CACHE_SCHEMA_VERSION]
+        compressor_name = compressor.__class__.__name__
+        components = [item.content, ENGINE_VERSION, CACHE_SCHEMA_VERSION, compressor_name, mode_name]
         
         # Ensure instances dynamically report their state
         if hasattr(compressor, '__hash_context__'):

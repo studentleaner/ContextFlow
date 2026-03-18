@@ -1,4 +1,12 @@
 from pydantic_settings import BaseSettings
+from pydantic import BaseModel
+
+class ContextConfig(BaseModel):
+    mode: str = "semantic"
+    compressor: str = "distill"
+    budget: int = 6000
+    cache: bool = True
+    provider: str = "openai"
 
 class ContextSettings(BaseSettings):
     openai_api_key: str = "sk-mock-key"

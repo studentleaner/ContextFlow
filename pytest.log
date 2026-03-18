@@ -1,0 +1,91 @@
+============================= test session starts =============================
+platform win32 -- Python 3.10.11, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\Pradeep\OneDrive\Documents\Code\Github\ContextFlow
+configfile: pyproject.toml
+plugins: anyio-4.12.1
+collected 20 items
+
+test_core.py ..........                                                  [ 50%]
+test_registry.py FF.....F                                                [ 90%]
+test_v06_nodes.py ..                                                     [100%]
+
+================================== FAILURES ===================================
+____________________________ test_generic_registry ____________________________
+
+    def test_generic_registry():
+        registry = PluginRegistry("test", DummyBase)
+    
+>       @registry.register("my_plugin")
+
+test_registry.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <contextflow.core.registry.PluginRegistry object at 0x000001DC4F10E3E0>
+name = 'my_plugin'
+
+    def register(self, name: str):
+        """Decorator to register a class as a plugin. Enforces import-time registration."""
+        frame = inspect.stack()[1]
+        if frame.function != '<module>':
+>           raise RuntimeError(f"Plugins can only be registered at import time. Runtime registration of '{name}' is forbidden to protect engine stability.")
+E           RuntimeError: Plugins can only be registered at import time. Runtime registration of 'my_plugin' is forbidden to protect engine stability.
+
+contextflow\core\registry.py:18: RuntimeError
+_________________________ test_registry_type_checking _________________________
+
+    def test_registry_type_checking():
+        registry = PluginRegistry("test", DummyBase)
+    
+        with pytest.raises(TypeError):
+>           @registry.register("invalid")
+
+test_registry.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <contextflow.core.registry.PluginRegistry object at 0x000001DC4F707C10>
+name = 'invalid'
+
+    def register(self, name: str):
+        """Decorator to register a class as a plugin. Enforces import-time registration."""
+        frame = inspect.stack()[1]
+        if frame.function != '<module>':
+>           raise RuntimeError(f"Plugins can only be registered at import time. Runtime registration of '{name}' is forbidden to protect engine stability.")
+E           RuntimeError: Plugins can only be registered at import time. Runtime registration of 'invalid' is forbidden to protect engine stability.
+
+contextflow\core\registry.py:18: RuntimeError
+_____________________________ test_auto_discovery _____________________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DC5045D930>
+
+    def test_auto_discovery(monkeypatch):
+        import importlib.metadata
+        from contextflow.core.interfaces import ContextMode
+    
+        class MockMode(ContextMode):
+            def select(self, messages): return messages
+    
+        class MockEntryPoint:
+            def __init__(self, name):
+                self.name = name
+            def load(self):
+                return MockMode
+    
+        def mock_entry_points(group=None):
+            if group == "contextflow.plugins.mode":
+                return [MockEntryPoint("mock_external")]
+            return []
+    
+        monkeypatch.setattr(importlib.metadata, "entry_points", mock_entry_points)
+        mode_registry.discover()
+    
+>       assert "mock_external" in mode_registry.list_plugins()
+E       AssertionError: assert 'mock_external' in ['minimal', 'full', 'semantic']
+E        +  where ['minimal', 'full', 'semantic'] = list_plugins()
+E        +    where list_plugins = <contextflow.core.registry.ModeRegistry object at 0x000001DC4F565210>.list_plugins
+
+test_registry.py:78: AssertionError
+=========================== short test summary info ===========================
+FAILED test_registry.py::test_generic_registry - RuntimeError: Plugins can on...
+FAILED test_registry.py::test_registry_type_checking - RuntimeError: Plugins ...
+FAILED test_registry.py::test_auto_discovery - AssertionError: assert 'mock_e...
+======================== 3 failed, 17 passed in 2.72s =========================
