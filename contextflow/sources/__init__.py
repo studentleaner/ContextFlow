@@ -1,7 +1,7 @@
 import os
 from typing import List
-from .interfaces import ContextSource
-from .schema import ContextItem
+from ..core.interfaces import ContextSource
+from ..core.schema import ContextItem
 
 class FileSource(ContextSource):
     """

@@ -1,5 +1,5 @@
 from typing import List
-from .schema import ContextItem
+from ..core.schema import ContextItem
 
 class SharedContextBank:
     """

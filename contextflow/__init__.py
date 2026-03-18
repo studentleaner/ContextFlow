@@ -6,7 +6,7 @@ from .provider import MockProvider, OpenAIProvider
 from .metrics import MetricsCollector
 from .sources import FileSource
 from .memory import SharedContextBank, GraphContextBank
-from .schema import ContextItem
+from .core.schema import ContextItem
 
 __all__ = [
     "ContextPipeline",

@@ -1,7 +1,7 @@
 import time
 import asyncio
 from typing import List, Optional, Callable
-from .schema import ContextItem
+from ..core.schema import ContextItem
 
 class ContextPipeline:
     def __init__(self, sources, mode, compressor, budget, provider, metrics=None,

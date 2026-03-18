@@ -1,6 +1,6 @@
 from typing import List
-from .interfaces import ContextMode
-from .schema import ContextItem
+from ..core.interfaces import ContextMode
+from ..core.schema import ContextItem
 
 class MinimalMode(ContextMode):
     """

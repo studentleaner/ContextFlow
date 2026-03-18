@@ -1,6 +1,6 @@
 from typing import List
 import tiktoken
-from .schema import ContextItem
+from ..core.schema import ContextItem
 
 class TokenEstimator:
     """Exact byte-pair encoding tracker responding to the OSS audit requests."""

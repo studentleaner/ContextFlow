@@ -1,7 +1,7 @@
 import re
 from typing import List
-from .interfaces import Compressor
-from .schema import ContextItem
+from ..core.interfaces import Compressor
+from ..core.schema import ContextItem
 
 class StandardCompressor(Compressor):
     

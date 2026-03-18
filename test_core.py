@@ -6,7 +6,7 @@ from contextflow.mode import MinimalMode
 from contextflow.compression import StandardCompressor
 from contextflow.provider import MockProvider
 from contextflow.metrics import MetricsCollector
-from contextflow.schema import ContextItem
+from contextflow.core.schema import ContextItem
 
 class TestContextFlow(unittest.TestCase):
 
