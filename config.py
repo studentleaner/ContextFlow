@@ -1,8 +1,13 @@
+from pydantic_settings import BaseSettings
 
-class Config:
+class ContextSettings(BaseSettings):
+    openai_api_key: str = "sk-mock-key"
+    max_context_tokens: int = 100000
+    default_model: str = "gpt-4o"
+    
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
 
-    def __init__(self, data):
-        self.data = data
-
-    def get(self, key, default=None):
-        return self.data.get(key, default) 
+# Expose a global default singleton for convenience, though dependency injection is preferred.
+config = ContextSettings()

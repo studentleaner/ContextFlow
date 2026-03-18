@@ -49,6 +49,38 @@ class TestContextFlow(unittest.TestCase):
         self.assertTrue("latency_ms" in metrics.data)
         self.assertTrue("tokens_after" in metrics.data)
 
+    def test_semantic_compression(self):
+        compressor = StandardCompressor()
+        messages = [
+            {"role": "user", "content": "Here is a code block:\n```json\n{\n  \"key\": \"value\"\n}\n```\nAnd a loose object: { \"test\": 123 }\nplease kindly ignore filler."}
+        ]
+        compressed = compressor.compress(messages)
+        content = compressed[0]["content"]
+        
+        # Exact markdown code block and exact json dict bracket string should remain perfectly untouched
+        self.assertIn("```json\n{\n  \"key\": \"value\"\n}\n```", content)
+        self.assertIn("{ \"test\": 123 }", content) 
+        # Deterministic padding should vanish 
+        self.assertNotIn("please kindly", content)
+
+    def test_file_source_loading(self):
+        from sources import FileSource
+        import tempfile
+        import os
+        
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("System Log: OOM Error occurred")
+            filepath = f.name
+            
+        try:
+            source = FileSource(filepath)
+            data = source.load()
+            self.assertEqual(len(data), 1)
+            self.assertEqual(data[0]["role"], "user")
+            self.assertIn("OOM Error", data[0]["content"])
+        finally:
+            os.remove(filepath)
+
 if __name__ == '__main__':
     unittest.main()
  
