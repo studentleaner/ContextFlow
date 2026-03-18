@@ -16,17 +16,25 @@ class ContextPipeline:
         for s in self.sources:
             messages.extend(s.load())
 
+        # 1. Prefix Caching Sequencer (Maximize LLM API Cache Hits)
+        # We enforce a strict order: [System Context] -> [Loaded Files/Docs] -> [Volatile Chat Memory] -> [New Goal]
+        system_msgs = [m for m in messages if m.get("role") == "system"]
+        file_msgs = [m for m in messages if "File Content" in m.get("content", "")]
+        volatile_msgs = [m for m in messages if m not in system_msgs and m not in file_msgs]
+        
+        messages = system_msgs + file_msgs + volatile_msgs
+
         messages.append({
             "role": "user",
             "content": goal,
         })
 
-        # Track initial theoretical token count for metrics (rough estimate by characters if budget module isn't strictly available yet, or let budget do it)
+        # Track initial theoretical token count for metrics
         tokens_before = sum(len(m.get("content", "")) // 4 for m in messages)
 
         start_time = time.time()
 
-        # 1. Mode Filter
+        # 2. Mode Filter
         messages = self.mode.select(messages)
 
         # 2. Sequential String Compression
