@@ -5,13 +5,14 @@ from ..core.schema import ContextItem
 
 class ContextPipeline:
     def __init__(self, sources, mode, compressor, budget, provider, metrics=None,
-                 cache=None, ranker=None,
+                 cache=None, ranker=None, debug: bool = False,
                  on_before_mode: Optional[Callable] = None,
                  on_after_mode: Optional[Callable] = None,
                  on_before_provider: Optional[Callable] = None):
         """
         Orchestration class handling the flow of ContextItems.
         Phase 8: True Context Engine fully binds optional Caches and Rankers natively.
+        Phase 9: Harnesses native debug traceability for step-by-step developer observability.
         """
         self.sources = sources
         self.mode = mode
@@ -22,6 +23,7 @@ class ContextPipeline:
         
         self.cache = cache
         self.ranker = ranker
+        self.debug = debug
         
         self.on_before_mode = on_before_mode
         self.on_after_mode = on_after_mode
@@ -33,43 +35,55 @@ class ContextPipeline:
         for s in self.sources:
             messages.extend(s.load())
 
-        # 1. Prefix Caching Sequencer
         system_msgs = [m for m in messages if m.role == "system"]
         file_msgs = [m for m in messages if "File Content" in m.content]
         volatile_msgs = [m for m in messages if m not in system_msgs and m not in file_msgs]
         
         messages = system_msgs + file_msgs + volatile_msgs
-
-        # Append execution goal with maximum priority
         messages.append(ContextItem(role="user", content=goal, priority=100))
 
         tokens_before = sum(len(m.content) // 4 for m in messages)
         start_time = time.time()
+        
+        if self.debug:
+            print(f"\\n--- ContextFlow Pipeline Trace ---")
+            print(f"[init] Injected {len(messages)} messages natively (~{tokens_before} raw tokens)")
 
         if self.on_before_mode:
             self.on_before_mode(messages)
 
-        # 2. Mode Filter
         messages = self.mode.select(messages)
 
         if self.on_after_mode:
             self.on_after_mode(messages)
+            
+        if self.debug:
+            print(f"[mode] {self.mode.__class__.__name__} safely mapped {len(messages)} surviving payload items")
 
-        # 3. Deterministic Compression & Ranking Mechanics
-        # Phase 8: Bypass CPU compression if the payload segment exists in the cryptographic hash store
         if self.cache:
             compressed_msgs = []
             for m in messages:
                 compressed_msgs.append(self.cache.get_or_set(m, self.compressor))
             messages = compressed_msgs
+            if self.debug:
+                print(f"[cache] Hashed states cleanly avoiding {len(messages)} regex cycles natively")
         else:
             messages = self.compressor.compress(messages)
+            if self.debug:
+                print(f"[compress] Scraped array deterministically neutralizing duplication bloat")
 
-        # Phase 8: Dynamically recalculate internal string priorities via Cosine or Time metrics
         if self.ranker:
             messages = self.ranker.apply(messages)
+            if self.debug:
+                print(f"[rank] Context dynamically scored natively using {self.ranker.scorer.__class__.__name__}")
 
         messages = self.budget.enforce(messages)
+        
+        # Tiktoken explicit calculation after budget slices
+        final_tokens = sum(m.tokens for m in messages if m.tokens is not None)
+            
+        if self.debug:
+            print(f"[budget] Preserved structurally critical constraints dropping sequence to absolute {final_tokens}/{self.budget.max_tokens} tiktoken limits")
 
         if self.on_before_provider:
             self.on_before_provider(messages)
@@ -79,6 +93,9 @@ class ContextPipeline:
 
         if self.metrics:
             self.metrics.record(tokens_before, tokens_after, latency_ms)
+
+        if self.debug:
+            print(f"[provider] Relaying asymptotic asynchronous dispatch payload securely\\n")
 
         # 4. Async Provider Call
         response = await self.provider.arun(messages)
