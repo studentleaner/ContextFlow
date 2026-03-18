@@ -63,12 +63,15 @@ class ContextPipeline:
         if self.cache:
             compressed_msgs = []
             for m in messages:
-                compressed_msgs.append(self.cache.get_or_set(m, self.compressor))
+                if hasattr(self.cache, 'aget_or_set'):
+                    compressed_msgs.append(await self.cache.aget_or_set(m, self.compressor))
+                else:
+                    compressed_msgs.append(self.cache.get_or_set(m, self.compressor))
             messages = compressed_msgs
             if self.debug:
                 print(f"[cache] Hashed states cleanly avoiding {len(messages)} regex cycles natively")
         else:
-            messages = self.compressor.compress(messages)
+            messages = await self.compressor.acompress(messages)
             if self.debug:
                 print(f"[compress] Scraped array deterministically neutralizing duplication bloat")
 

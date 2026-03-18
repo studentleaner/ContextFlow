@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.6.0
+
+ContextFlow natively introduces the Intelligence Layer to filter and compress context intelligently utilizing Semantic and Distillation logic.
+
+**Added:**
+- `SemanticMode` capable of structurally dropping uncorrelated chat history via goal-similarity.
+- `DistillationCompressor` replacing rigid deterministic heuristics with natively awaited asynchronous LLM chunk summarization.
+- `acompress()` hook dynamically inserted into the base `Compressor` interface explicitly enabling intelligent LLM pipeline compression securely.
+
+**Refactored:**
+- `ContextPipeline.arun()` and `NativeCache.aget_or_set()` natively await and cascade async implementations cleanly.
+- `Provider` interface corrected to strictly parse flat message arrays natively, standardizing Prompt injection.
+
 ## v0.5.0
 
 ContextFlow natively introduces Plugin Registries enabling infinite extensibility without modifying core architecture.

@@ -76,24 +76,34 @@ class StandardCompressor(Compressor):
 @compressor_registry.register("distillation")
 class DistillationCompressor(Compressor):
     """
-    Uses a fast auxiliary LLM to aggressively summarize enormous string payloads. 
-    WARNING: Use sparingly. Deterministic compression (StandardCompressor) is always preferred.
+    Uses a fast auxiliary LLM Provider to aggressively summarize enormous string payloads natively. 
     """
     def __init__(self, distillation_provider, overflow_threshold=2000):
         self.provider = distillation_provider
         self.threshold = overflow_threshold
 
     def compress(self, messages: List[ContextItem]) -> List[ContextItem]:
+        """Distillation is natively asynchronous. This fallback prevents sync loops from crashing, passing unaltered text."""
+        return messages
+
+    async def acompress(self, messages: List[ContextItem]) -> List[ContextItem]:
         out = []
         for m in messages:
             content = m.content
             
-            # Distillation is pseudo-mocked here because native compress() is synchronous
-            if m.role == "user" and len(content) > self.threshold:
+            if len(content) > self.threshold and m.role != "system":
+                prompt_items = [
+                    ContextItem(role="system", content="Summarize the following context densely, retaining critical facts and errors.", priority=100),
+                    ContextItem(role="user", content=content, priority=100)
+                ]
+                
+                summarized = await self.provider.arun(messages=prompt_items)
+                
                 out.append(ContextItem(
                     role=m.role, 
-                    content=f"[DISTILLED CONTEXT]:\n{content[:100]}... (Distilled logically)",
-                    priority=m.priority
+                    content=f"[DISTILLED CONTEXT]:\n{summarized}",
+                    priority=m.priority,
+                    metadata=m.metadata
                 ))
             else:
                 out.append(m)

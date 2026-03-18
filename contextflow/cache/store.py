@@ -25,3 +25,17 @@ class NativeCache:
         compressed_item = compressor.compress([item])[0]
         self.store[h] = compressed_item
         return compressed_item
+
+    async def aget_or_set(self, item: ContextItem, compressor) -> ContextItem:
+        if len(item.content) < 500:
+            res = await compressor.acompress([item])
+            return res[0]
+            
+        h = self._hash(item.content)
+        if h in self.store:
+            return self.store[h]
+            
+        res = await compressor.acompress([item])
+        compressed_item = res[0]
+        self.store[h] = compressed_item
+        return compressed_item

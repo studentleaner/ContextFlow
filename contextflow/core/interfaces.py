@@ -20,8 +20,12 @@ class Compressor(ABC):
     def compress(self, messages: List[ContextItem]) -> List[ContextItem]:
         pass
 
+    async def acompress(self, messages: List[ContextItem]) -> List[ContextItem]:
+        """Async hook for LLM-based compressors. Defaults to synchronous execution."""
+        return self.compress(messages)
+
 class Provider(ABC):
     """Abstract interface for LLM endpoints ensuring strict mapping boundaries."""
     @abstractmethod
-    async def arun(self, goal: str, messages: List[ContextItem]) -> str:
+    async def arun(self, messages: List[ContextItem]) -> str:
         pass

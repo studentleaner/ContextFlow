@@ -1,0 +1,66 @@
+============================= test session starts =============================
+platform win32 -- Python 3.10.11, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\Pradeep\AppData\Local\Programs\Python\Python310\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Pradeep\OneDrive\Documents\Code\Github\ContextFlow
+configfile: pyproject.toml
+plugins: anyio-4.12.1
+collecting ... collected 15 items
+
+test_core.py::TestContextFlow::test_context_session PASSED               [  6%]
+test_core.py::TestContextFlow::test_distillation_compressor FAILED       [ 13%]
+test_core.py::TestContextFlow::test_file_source_loading PASSED           [ 20%]
+test_core.py::TestContextFlow::test_graph_context_bank PASSED            [ 26%]
+test_core.py::TestContextFlow::test_native_cache PASSED                  [ 33%]
+test_core.py::TestContextFlow::test_pipeline_execution PASSED            [ 40%]
+test_core.py::TestContextFlow::test_ranking_time_decay PASSED            [ 46%]
+test_core.py::TestContextFlow::test_semantic_compression PASSED          [ 53%]
+test_registry.py::test_generic_registry PASSED                           [ 60%]
+test_registry.py::test_registry_type_checking PASSED                     [ 66%]
+test_registry.py::test_mode_registry PASSED                              [ 73%]
+test_registry.py::test_compressor_registry PASSED                        [ 80%]
+test_registry.py::test_provider_registry PASSED                          [ 86%]
+test_registry.py::test_source_registry PASSED                            [ 93%]
+test_registry.py::test_scorer_registry PASSED                            [100%]
+
+================================== FAILURES ===================================
+________________ TestContextFlow.test_distillation_compressor _________________
+
+self = <test_core.TestContextFlow testMethod=test_distillation_compressor>
+
+    def test_distillation_compressor(self):
+        import asyncio
+        from contextflow.compression import DistillationCompressor
+        from contextflow.provider import MockProvider
+        compressor = DistillationCompressor(MockProvider(), overflow_threshold=10)
+        messages = [
+            ContextItem(role="user", content="This is a massive block of text that exceeds the limit.")
+        ]
+>       compressed = asyncio.run(compressor.acompress(messages))
+
+test_core.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\..\AppData\Local\Programs\Python\Python310\lib\asyncio\runners.py:44: in run
+    return loop.run_until_complete(main)
+..\..\..\..\..\AppData\Local\Programs\Python\Python310\lib\asyncio\base_events.py:649: in run_until_complete
+    return future.result()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <contextflow.compression.DistillationCompressor object at 0x0000021F8750DD20>
+messages = [ContextItem(role='user', content='This is a massive block of text that exceeds the limit.', priority=0, tokens=None, metadata={})]
+
+    async def acompress(self, messages: List[ContextItem]) -> List[ContextItem]:
+        out = []
+        for m in messages:
+            content = m.content
+    
+            if len(content) > self.threshold and m.role != "system":
+                distill_goal = "Summarize the following context densely, retaining critical facts and errors."
+                prompt_items = [ContextItem(role="user", content=content, priority=100)]
+    
+>               summarized = await self.provider.arun(goal=distill_goal, messages=prompt_items)
+E               TypeError: MockProvider.arun() got an unexpected keyword argument 'goal'
+
+contextflow\compression\__init__.py:98: TypeError
+=========================== short test summary info ===========================
+FAILED test_core.py::TestContextFlow::test_distillation_compressor - TypeErro...
+======================== 1 failed, 14 passed in 1.44s =========================

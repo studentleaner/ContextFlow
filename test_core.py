@@ -54,13 +54,14 @@ class TestContextFlow(unittest.TestCase):
             os.remove(filepath)
 
     def test_distillation_compressor(self):
+        import asyncio
         from contextflow.compression import DistillationCompressor
         from contextflow.provider import MockProvider
         compressor = DistillationCompressor(MockProvider(), overflow_threshold=10)
         messages = [
             ContextItem(role="user", content="This is a massive block of text that exceeds the limit.")
         ]
-        compressed = compressor.compress(messages)
+        compressed = asyncio.run(compressor.acompress(messages))
         self.assertIn("[DISTILLED CONTEXT]", compressed[0].content)
 
     def test_graph_context_bank(self):
