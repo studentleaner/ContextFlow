@@ -7,3 +7,4 @@ class MinimalMode:
 class FullMode:
     def select(self, messages):
         return messages
+ 

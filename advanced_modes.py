@@ -6,4 +6,4 @@ class InvestigationMode:
 
 class AgentMode:
     def select(self, messages):
-        return messages[-10:]
+        return messages[-10:] 

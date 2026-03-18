@@ -15,7 +15,7 @@ class StandardCompressor:
             if not line:
                 continue
 
-            if line in seen:
+            if line in seen: 
                 continue
 
             seen.add(line)

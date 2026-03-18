@@ -13,7 +13,7 @@ For agent runners to confidently use this library, measuring efficiency is manda
 * **`latency_ms`:** How long the `Mode + Compressor` sequential execution takes. (Goal: <50ms standard)
 * **`cost_savings_estimate`:** A computed translation of tokens saved vs. the Provider's standard $/1M token pricing bracket.
 
-### Integration
+### Integration 
 Because the collector emits a standard dictionary state, teams are encouraged to sink this telemetry into backend enterprise platforms:
 * LangSmith / Datadog
 * Prometheus / Grafana stacks

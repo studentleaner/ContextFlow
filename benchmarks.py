@@ -6,3 +6,4 @@ def benchmark(func, *args, **kwargs):
     r = func(*args, **kwargs)
     t2 = time.time()
     return r, t2 - t1
+ 

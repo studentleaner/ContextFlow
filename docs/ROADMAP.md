@@ -18,7 +18,7 @@ Currently, `TokenBudget` truncates by removing whole messages from the array (`m
 
 ---
 
-## 🟡 Core Architecture Improvements 
+## 🟡 Core Architecture Improvements  
 
 ### 1. JSON & Structured Data Preservation
 As agents heavily utilize Tool Calling and JSON parsing, deterministic text compression (trimming spaces, deduplicating brackets) carries the risk of breaking valid JSON schemas.

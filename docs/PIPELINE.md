@@ -14,4 +14,4 @@ When a developer triggers pipeline execution for a specific objective, the follo
 6. **Execution (`Provider.chat()`):** The minimized JSON array payload is sent asynchronously to the LLM backend.
 
 ## Why Sequential Iteration?
-We actively avoid asynchronous, parallelized summarization at the compression layer because waiting on secondary LLM API calls introduces massive latency and breaks deterministic safety constraints. Sequence guarantees speed.
+We actively avoid asynchronous, parallelized summarization at the compression layer because waiting on secondary LLM API calls introduces massive latency and breaks deterministic safety constraints. Sequence guarantees speed. 

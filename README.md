@@ -53,13 +53,16 @@ For a deep dive into how ContextFlow works and our plans for the future, explore
 
 ---
 
-## 📦 Installation & Quick Start
+## 📦 Installation
 
 ```bash
 git clone https://github.com/studentleaner/ContextFlow.git
 cd ContextFlow
+pip install -r requirements.txt
 pip install -e .
 ```
+
+## ⚡ Quick Start
 
 ```python
 from contextflow.pipeline import ContextPipeline

@@ -29,4 +29,4 @@ An explicit boundary enforcer. Interacts closely with the backend Provider's exp
 The adapter layer matching the array to the vendor API (e.g., Litellm, OpenAI, Anthropic, Ollama). It handles async networking and returns the final LLM response.
 
 ## SOLID Principles in Action
-By leveraging these abstractions, users can replace a `Compressor` without impacting their `TokenBudget`, or transition from `OpenAI` to a local `Ollama` loop simply by registering a different Provider adapter. The pipeline orchestration (`pipeline.py`) remains static.
+By leveraging these abstractions, users can replace a `Compressor` without impacting their `TokenBudget`, or transition from `OpenAI` to a local `Ollama` loop simply by registering a different Provider adapter. The pipeline orchestration (`pipeline.py`) remains static. 

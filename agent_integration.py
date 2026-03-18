@@ -5,4 +5,4 @@ class AgentRunner:
         self.pipeline = pipeline
 
     def run(self, goal):
-        return self.pipeline.run(goal)
+        return self.pipeline.run(goal) 

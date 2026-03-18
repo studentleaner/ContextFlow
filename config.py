@@ -5,4 +5,4 @@ class Config:
         self.data = data
 
     def get(self, key, default=None):
-        return self.data.get(key, default)
+        return self.data.get(key, default) 

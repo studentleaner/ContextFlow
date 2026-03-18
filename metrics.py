@@ -6,3 +6,4 @@ class MetricsCollector:
 
     def record(self, key, value):
         self.data[key] = value
+ 

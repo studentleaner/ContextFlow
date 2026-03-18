@@ -16,4 +16,4 @@ class Compressor:
 
 class Provider:
     def chat(self, messages):
-        raise NotImplementedError
+        raise NotImplementedError 

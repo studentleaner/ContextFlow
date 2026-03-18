@@ -18,7 +18,7 @@ class ContextMode:
         raise NotImplementedError
 ```
 
-## `Compressor`
+## `Compressor` 
 ```python
 class Compressor:
     def compress(self, messages: list[dict]) -> list[dict]:

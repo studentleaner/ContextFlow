@@ -29,4 +29,4 @@ ContextFlow utilizes a strict linear pipeline architecture:
 The architecture is foundationally sound but requires growth in three specific areas to be production-ready:
 1. **Granular Budgeting:** Shifting from dropping entire messages from arrays, to exact token-counting slicing.
 2. **Structured Format Preservation:** Ensuring the `Compressor` doesn't break JSON shapes or Tool Call schemas that LLMs rely on.
-3. **Prefix Caching:** Designing the pipeline sort-order to maximize backend LLM cache hits.
+3. **Prefix Caching:** Designing the pipeline sort-order to maximize backend LLM cache hits. 
