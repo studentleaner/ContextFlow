@@ -7,9 +7,9 @@
 ![Architecture](https://img.shields.io/badge/design-SOLID-orange)
 ![LLM](https://img.shields.io/badge/LLM-context--engineering-purple)
 
-ContextFlow is a lightweight, deterministic Python library for **Context Engineering**.
+ContextFlow is an experimental **Context Engine** for LLM systems (Pre-1.0).
 
-It provides a structured pipeline to **select, compress, budget, and send context** to Large Language Models (LLMs) in a clean, predictable, and cost-efficient way.
+It provides a stateful orchestration layer to **cache, rank, compress, and budget context** before injecting it into Large Language Models (LLMs).
 
 Designed for:
 - Agents (ReAct, LangGraph, CrewAI)
@@ -19,13 +19,13 @@ Designed for:
 
 ---
 
-## 🚀 Why ContextFlow?
+## 🚀 Why a Context Engine?
 
 Modern LLM applications often fail not because of the model, but because of **bad context**. 
 Massive contexts result in the "Lost in the Middle" phenomenon where models ignore relevant details.
 
-**The Solution:** ContextFlow sits between your data sources and the LLM. 
-It deterministically removes noise, enforces token limits, and structures logs/memory so you use fewer tokens, lower latency (TTFT), and reduce hallucination loops.
+**The Solution:** ContextFlow sits between your data sources and your orchestration layer. 
+It deterministically removes noise, ranks memory by semantic relevance, cryptographically caches static files, and enforces hard `tiktoken` limits so you use fewer tokens, lower latency (TTFT), and reduce hallucination loops safely.
 
 ---
 
@@ -53,10 +53,12 @@ For a deep dive into how ContextFlow works and how to extend its architecture, e
 
 | Feature | Description |
 |--------|-------------|
-| **Context Modes** | Filter relevant messages before injection |
-| **Deterministic Compression** | Remove boilerplate & duplicate logs safely without LLM latency |
-| **Token Budgeting** | Hard token limits to prevent context overflow |
-| **Provider Agnostic** | Standard API adaptable for OpenAI, Claude, or local Ollama models |
+| **Context Sessions** | Stateful wrapper for seamless multi-turn Agent memory |
+| **Context Caching** | Cryptographic hashes skip CPU compression on static RAG items |
+| **Context Ranking** | Dynamic scoring algorithms prioritizing TimeDecay over old logs |
+| **Deterministic Compression** | Remove boilerplate safely without expensive LLM distillation latency |
+| **Token Budgeting** | Hard `tiktoken` limits strictly prioritizing semantic retention |
+| **Provider Agnostic** | Standard Async API adaptable for OpenAI, Claude, or local Ollama |
 
 ---
 
