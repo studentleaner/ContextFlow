@@ -53,10 +53,18 @@ For a deep dive into how ContextFlow works and how to extend its architecture, e
 
 ---
 
-## 📦 Local Integration
+## 📦 Installation & Integration
 
-ContextFlow is designed to be dropped locally into existing applications:
+ContextFlow is explicitly designed to support **both** public Open Source workflows (PyPI) and private internal Developer Integration (dropping it into your Monorepos).
 
+### Option 1: Public PyPI (Recommended)
+If you are building an external application, simply install the official package:
+```bash
+pip install contextflow
+```
+
+### Option 2: Local Internal Integration
+If you are dropping ContextFlow into an existing secure company Monorepo:
 ```bash
 git clone https://github.com/studentleaner/ContextFlow.git
 cd ContextFlow
