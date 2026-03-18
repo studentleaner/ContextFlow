@@ -8,6 +8,11 @@ from .sources import FileSource
 from .memory import SharedContextBank, GraphContextBank
 from .core.schema import ContextItem
 
+# Phase 8 Engine States
+from .cache import NativeCache
+from .ranking import ContextRanker, TimeDecayScorer
+from .session import ContextSession
+
 __all__ = [
     "ContextPipeline",
     "MinimalMode", "FullMode",
@@ -17,5 +22,10 @@ __all__ = [
     "MetricsCollector",
     "FileSource",
     "SharedContextBank", "GraphContextBank",
-    "ContextItem"
+    "ContextItem",
+    
+    # Engine Additions
+    "NativeCache",
+    "ContextRanker", "TimeDecayScorer",
+    "ContextSession"
 ]

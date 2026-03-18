@@ -81,5 +81,39 @@ class TestContextFlow(unittest.TestCase):
         contents2 = " ".join(m.content for m in source2)
         self.assertIn("30", contents2)
 
+    def test_native_cache(self):
+        from contextflow.cache import NativeCache
+        cache = NativeCache()
+        compressor = StandardCompressor()
+        
+        big_string = "a" * 1000
+        item = ContextItem(role="system", content=f"```python\n{big_string}\n```")
+        cached1 = cache.get_or_set(item, compressor)
+        cached2 = cache.get_or_set(item, compressor)
+        
+        self.assertIs(cached1, cached2) 
+
+    def test_ranking_time_decay(self):
+        from contextflow.ranking import ContextRanker, TimeDecayScorer
+        ranker = ContextRanker(TimeDecayScorer(base_priority=50, decay_rate=5))
+        messages = [
+            ContextItem(role="user", content="oldest turn"),
+            ContextItem(role="assistant", content="old reply"),
+            ContextItem(role="user", content="newest turn")
+        ]
+        
+        ranked = ranker.apply(messages)
+        self.assertEqual(ranked[0].priority, 35) # Penalty 15
+        self.assertEqual(ranked[2].priority, 45) # Penalty 5
+
+    def test_context_session(self):
+        from contextflow.session import ContextSession
+        session = ContextSession(self.pipeline, system_prompt="Be a helpful bot")
+        session.add_turn("user", "Hello there!")
+        
+        response = session.resolve_sync("Can you summarize our chat?")
+        self.assertIn("mock response", response)
+        self.assertEqual(len(session.history), 4)
+
 if __name__ == '__main__':
     unittest.main()
