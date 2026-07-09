@@ -32,3 +32,8 @@ coverage.xml
 # OS
 .DS_Store
 Thumbs.db
+
+__pycache__/
+*.pyc
+*.code-workspace
+*.egg-info/
